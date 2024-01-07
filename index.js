@@ -1,4 +1,5 @@
 const { prisma } = require('./db');
+const itemService = require('./services/item.service');
 
 const main = async() => {
     const date = new Date();
@@ -6,23 +7,8 @@ const main = async() => {
 
     console.log('Searching items with ends_at greather than: ', date)
 
-    const items = await prisma.Item.findMany({
-        where: {
-            ends_at: {
-                gt: date,
-            },
-        },
-        include: {
-            offers: {
-                orderBy: {
-                    amount: 'desc',
-                },
-                include: {
-                    user: true,
-                },
-            },
-        }
-    });
+    const items = await itemService.getByEndsAtGreaterThan( date )
+                    .catch( err => console.error(err) )
 
     if( items.length === 0 ) {
         console.log('No items found');
