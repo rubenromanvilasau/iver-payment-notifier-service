@@ -1,5 +1,6 @@
 const { prisma } = require('./db');
 const itemService = require('./services/item.service');
+const { sendEmail } = require('./utils/send-email');
 
 const main = async() => {
     const date = new Date();
@@ -12,7 +13,7 @@ const main = async() => {
 
     if( items.length === 0 ) {
         console.log('No items found');
-        return;
+        // return;
     };
 
     console.log(`Items that ended after ${ date } :`, items);
@@ -24,6 +25,8 @@ const main = async() => {
             console.log(`Winner for item with id=${item.item_id}:`, winner.user);
         }
     }
+
+    await sendEmail();
 
 };
 
