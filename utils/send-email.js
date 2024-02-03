@@ -1,41 +1,39 @@
 const nodemailer = require('nodemailer');
+const { google } = require("googleapis");
+const OAuth2 = google.auth.OAuth2;
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        type: 'OAuth2',
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD,
-        clientId: process.env.OAUTH_CLIENT_ID,
-        clientSecret: process.env.OAUTH_CLIENT_SECRET,
-        refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+const sendEmail = async({ to, subject, html }) => {
+
+    const data = { 
+        from: process.env.GMAIL_USER,
+        to,
+        subject,
+        html,
     }
-});
 
-const data = {
-    from: 'r.roman.v8@gmail.com',
-    to: 'ruben.roman@mayor.cl',
-    subject: 'Nodemailer Project',
-    text: 'Hi from your nodemailer project'
-    // from: '',
-    // to: '',
-    // subject: '',
-    // text: '',
-    // html: '',
-};
+   try {
+    const oauth2Client = new OAuth2(
+        process.env.OAUTH_CLIENT_ID,
+        process.env.OAUTH_CLIENT_SECRET,
+        "https://developers.google.com/oauthplayground"
+    );
+    
+    oauth2Client.setCredentials({
+        refresh_token: process.env.OAUTH_REFRESH_TOKEN,
+    });
 
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            type: 'OAuth2',
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_PASSWORD,
+            clientId: process.env.OAUTH_CLIENT_ID,
+            clientSecret: process.env.OAUTH_CLIENT_SECRET,
+            refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+        }
+    });
 
-const sendEmail = () => {
-    console.log({
-        type: 'OAuth2',
-        user: 'r.roman.v8@gmail.com',
-        // user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD,
-        accessToken: process.env.OAUTH_ACCESS_TOKEN,
-        clientId: process.env.OAUTH_CLIENT_ID,
-        clientSecret: process.env.OAUTH_CLIENT_SECRET,
-        refreshToken: process.env.OAUTH_REFRESH_TOKEN,
-    })
     return new Promise( ( resolve, reject ) => {
         transporter.sendMail(data, (err, info ) => {
             if( err ) {
@@ -43,11 +41,16 @@ const sendEmail = () => {
                 reject( err );
             }
         
-            console.log('Email sent', info.messageId);
+            console.log('Email sent', info);
             resolve( info );
         });
     
     });
+   } catch (error) {
+        console.log('Error when sending email: ');
+        console.log(error);
+   }
+
 };
 
 module.exports = {

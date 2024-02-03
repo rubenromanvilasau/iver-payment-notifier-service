@@ -1,10 +1,9 @@
-const { prisma } = require('./db');
 const itemService = require('./services/item.service');
 const { sendEmail } = require('./utils/send-email');
 
-const main = async() => {
+const main = async( minutesAgo ) => {
     const date = new Date();
-    date.setMinutes( new Date().getMinutes() - 5 )
+    date.setMinutes( new Date().getMinutes() - minutesAgo )
 
     console.log('Searching items with ends_at greather than: ', date)
 
@@ -13,7 +12,7 @@ const main = async() => {
 
     if( items.length === 0 ) {
         console.log('No items found');
-        // return;
+        return;
     };
 
     console.log(`Items that ended after ${ date } :`, items);
@@ -26,8 +25,9 @@ const main = async() => {
         }
     }
 
-    await sendEmail();
+    //generate a link to pay
+    await sendEmail({ to: 'ruben.roman@mayor.cl', subject: 'YOU WON THE AUCTION', html: `<h1>YOU WON, time to pay</h1>` });
 
 };
 
-main();
+main( 35 );
