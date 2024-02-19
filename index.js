@@ -2,6 +2,7 @@ const { format } = require('date-fns');
 const itemService = require('./services/item.service');
 const { sendEmail } = require('./utils/send-email');
 const fs = require('fs');
+const {v1: uuidv1} = require('uuid');
 
 const main = async( minutesAgo ) => {
     const date = new Date();
@@ -31,12 +32,12 @@ const main = async( minutesAgo ) => {
     const template = fs.readFileSync( templatePath, 'utf8' );
     
     //TODO HERE SHOULD BE INCLUDED THE LINK TO PAY, IN THE TEMPLATE, THAT LINK MUST BE THE CHECKOUT PAGE FIRST, THEN MERCADO PAGO VIEW.
-    const emailData = { 
-        to: 'ruben.roman@mayor.cl', 
-        subject: 'YOU WON THE AUCTION', 
-        html: template,
-    };
-    await sendEmail( emailData );
+    // const emailData = { 
+    //     to: 'ruben.roman@mayor.cl', 
+    //     subject: 'YOU WON THE AUCTION', 
+    //     html: template,
+    // };
+    // await sendEmail( emailData );
 
 };
 
