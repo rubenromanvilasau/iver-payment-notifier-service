@@ -1,11 +1,13 @@
+const { format } = require('date-fns');
 const itemService = require('./services/item.service');
 const { sendEmail } = require('./utils/send-email');
+const fs = require('fs');
 
 const main = async( minutesAgo ) => {
     const date = new Date();
     date.setMinutes( new Date().getMinutes() - minutesAgo )
 
-    console.log('Searching items with ends_at greather than: ', date)
+    console.log('Searching items with ends_at greather than: ', format(date, 'dd-MM-yyyy HH:mm:ss'));
 
     const items = await itemService.getByEndsAtGreaterThan( date )
                     .catch( err => console.error(err) )
@@ -25,9 +27,19 @@ const main = async( minutesAgo ) => {
         }
     }
 
-    //generate a link to pay
-    await sendEmail({ to: 'ruben.roman@mayor.cl', subject: 'YOU WON THE AUCTION', html: `<h1>YOU WON, time to pay</h1>` });
+    const templatePath = './templates/auction-winner.html';
+    const template = fs.readFileSync( templatePath, 'utf8' );
+    
+    //TODO HERE SHOULD BE INCLUDED THE LINK TO PAY, IN THE TEMPLATE, THAT LINK MUST BE THE CHECKOUT PAGE FIRST, THEN MERCADO PAGO VIEW.
+    const emailData = { 
+        to: 'ruben.roman@mayor.cl', 
+        subject: 'YOU WON THE AUCTION', 
+        html: template,
+    };
+    await sendEmail( emailData );
 
 };
 
-main( 35 );
+
+const minutesAgo = 120; // Minutes items ended after
+main( minutesAgo );

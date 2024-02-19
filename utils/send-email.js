@@ -22,11 +22,22 @@ const sendEmail = async({ to, subject, html }) => {
         refresh_token: process.env.OAUTH_REFRESH_TOKEN,
     });
 
+    const accessToken = await new Promise((resolve, reject) => {
+        oauth2Client.getAccessToken((err, token) => {
+          if (err) {
+            console.log("*ERR: ", err)
+            reject();
+          }
+          resolve(token); 
+        });
+      });
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
             type: 'OAuth2',
             user: process.env.GMAIL_USER,
+            accessToken,
             pass: process.env.GMAIL_PASSWORD,
             clientId: process.env.OAUTH_CLIENT_ID,
             clientSecret: process.env.OAUTH_CLIENT_SECRET,
@@ -39,6 +50,7 @@ const sendEmail = async({ to, subject, html }) => {
             if( err ) {
                 console.log( 'Error sending email', err );
                 reject( err );
+                return;
             }
         
             console.log('Email sent', info);
